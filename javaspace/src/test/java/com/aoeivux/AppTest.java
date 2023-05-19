@@ -87,11 +87,12 @@ public class AppTest {
 
 	// 动态规划 求前n天的最大股票利益 状态方程：f(x) = max(f(x-1),
 	// curentPrice(x)-minPrice(0:x))
+	// 贪心法
 	public int maxProfit(int[] prices) {
 		int maxProfit = 0;
 		int minPrice = Integer.MAX_VALUE;
 		for (int price : prices) {
-			minPrice = Math.max(minPrice, price);
+			minPrice = Math.min(minPrice, price);
 			maxProfit = Math.max(maxProfit, price - minPrice);
 		}
 		return maxProfit;
@@ -703,29 +704,31 @@ public class AppTest {
 		return head;
 	}
 
-//这个双指针，一开始看怎么逻辑不对，仔细研究，精髓在swap(nums[i--], nums[j--]);的i--巧妙地检查了交换后的 nums[i] 是否还为 val
-//i-- 在执行完swap才会执行i = i - 1,之后第一层循环结束之后又会i = i + 1。
-    public int removeElement(int[] nums, int val) {
-        int j = nums.length - 1;
-        for (int i = 0; i <= j; i++) {
-            if (nums[i] == val) {
-                swap(nums, i--, j--);
-            }
-        }
-        return j + 1;
-    }
-    void swap(int[] nums, int i, int j) {
-        int tmp = nums[i];
-        nums[i] = nums[j];
-        nums[j] = tmp;
-    }
+	// 这个双指针，一开始看怎么逻辑不对，仔细研究，精髓在swap(nums[i--], nums[j--]);的i--巧妙地检查了交换后的 nums[i]
+	// 是否还为 val
+	// i-- 在执行完swap才会执行i = i - 1,之后第一层循环结束之后又会i = i + 1。
+	public int removeElement(int[] nums, int val) {
+		int j = nums.length - 1;
+		for (int i = 0; i <= j; i++) {
+			if (nums[i] == val) {
+				swap(nums, i--, j--);
+			}
+		}
+		return j + 1;
+	}
 
+	void swap(int[] nums, int i, int j) {
+		int tmp = nums[i];
+		nums[i] = nums[j];
+		nums[j] = tmp;
+	}
 
 	public int removeDuplicates(int[] nums) {
 		int n = nums.length;
 		int j = 0;
 		for (int i = 0; i < n; i++) {
-			if (nums[i] == nums[j]) continue;
+			if (nums[i] == nums[j])
+				continue;
 			nums[++j] = nums[i];
 		}
 		return j + 1;
@@ -733,48 +736,47 @@ public class AppTest {
 
 	@Test
 	public void testG1() {
-		
+
 	}
 
-    public int maxSubArray(int[] nums) {
-        int len = nums.length;
-        // dp[i] 表示：以 nums[i] 结尾的连续子数组的最大和
+	public int maxSubArray(int[] nums) {
+		int len = nums.length;
+		// dp[i] 表示：以 nums[i] 结尾的连续子数组的最大和
 		// 1.状态定义
-        int[] dp = new int[len];
+		int[] dp = new int[len];
 
 		// 2.初始值
-        dp[0] = nums[0];
+		dp[0] = nums[0];
 
+		for (int i = 1; i < len; i++) {
+			if (dp[i - 1] > 0) {
+				dp[i] = dp[i - 1] + nums[i];
+			} else {
+				dp[i] = nums[i];
+			}
+		}
 
-        for (int i = 1; i < len; i++) {
-            if (dp[i - 1] > 0) {
-                dp[i] = dp[i - 1] + nums[i];
-            } else {
-                dp[i] = nums[i];
-            }
-        }
-
-        // 也可以在上面遍历的同时求出 res 的最大值，这里我们为了语义清晰分开写，大家可以自行选择
-        int res = dp[0];
-        for (int i = 1; i < len; i++) {
-            res = Math.max(res, dp[i]);
-        }
-        return res;
-    }
+		// 也可以在上面遍历的同时求出 res 的最大值，这里我们为了语义清晰分开写，大家可以自行选择
+		int res = dp[0];
+		for (int i = 1; i < len; i++) {
+			res = Math.max(res, dp[i]);
+		}
+		return res;
+	}
 
 	public int testMaxSubArray(int[] nums) {
 		int length = nums.length;
 
-		//定义状态
+		// 定义状态
 		int[] dp = new int[length];
 
-		//定义初始值
+		// 定义初始值
 		dp[0] = nums[0];
 
-		//状态转移方程
+		// 状态转移方程
 		for (int i = 1; i < dp.length; i++) {
-			if(dp[i - 1] > 0) {
-				dp[i] = dp[i-1] + nums[i];
+			if (dp[i - 1] > 0) {
+				dp[i] = dp[i - 1] + nums[i];
 			} else {
 				dp[i] = nums[i];
 			}
@@ -789,5 +791,59 @@ public class AppTest {
 
 	}
 
+	@Test
+	public void test11() {
+		HashMap<Integer, Character> map = new HashMap<>();
+		LinkedList<Object> l = new LinkedList<>();
+		// l.size()
+		// l.get
+		map.put(1, 'a');
+		map.put(2, 'b');
+		map.put(1, 'c');
+		System.out.println(map);
+	}
+
+	//
+	public int maxProfit1(int[] prices) {
+		/*
+		 * dp[i][0]：规定了今天不持股，有以下两种情况：
+			* 昨天不持股，今天什么都不做；
+			* 昨天持股，今天卖出股票（现金数增加），
+		 * dp[i][1]：规定了今天持股，有以下两种情况：
+			* 昨天持股，今天什么都不做（现金数与昨天一样）；
+			* 昨天不持股，今天买入股票（注意：只允许交易一次，因此手上的现金数就是当天的股价的相反数）。
+		 * 
+		 */
+		int len = prices.length;
+		// 特殊判断
+		if (len < 2) {
+			return 0;
+		}
+		int[][] dp = new int[len][2];
+
+		// dp[i][0] 下标为 i 这天结束的时候，不持股，手上拥有的现金数
+		// dp[i][1] 下标为 i 这天结束的时候，持股，手上拥有的现金数
+
+		// 初始化：不持股显然为 0，持股就需要减去第 1 天（下标为 0）的股价
+		dp[0][0] = 0;
+		dp[0][1] = -prices[0];
+
+		// 从第 2 天开始遍历, 0代表第一天开始
+		for (int i = 1; i < len; i++) {
+			dp[i][0] = Math.max(dp[i - 1][0], dp[i - 1][1] + prices[i]);
+			dp[i][1] = Math.max(dp[i - 1][1], -prices[i]);
+		}
+		return dp[len - 1][0];
+	}
+
+	@Test
+	public void test12() {
+/* 		System.out.println(
+			3/2+"=>"+3%2
+		); */
+		while(i) {
+			System.out.println(i);
+		}
+	}
 
 }

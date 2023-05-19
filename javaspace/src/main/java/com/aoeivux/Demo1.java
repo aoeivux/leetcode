@@ -13,5 +13,6 @@ class Person {
 	private String last = "adsf";
 
 	public static void main(String[] args) {
+
 	}
 }

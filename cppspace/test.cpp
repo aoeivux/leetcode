@@ -3,9 +3,12 @@
 
 using namespace std;
 
-int main(int argc, const char** argv) {
-	vector<int> res = {1 ,2,3};
+avl
 
-	std::cout << *max_element(res.begin(), res.end()) << std::endl;
+int main(int argc, const char** argv) {
+	int i =5;
+	while(i--) {
+		std::cout << i << std::endl;
+	}
 	return 0;
 }
